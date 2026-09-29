@@ -1,0 +1,221 @@
+.container {
+  width: 100%;
+}
+
+/* ===== Family Selector ===== */
+.familySelectorBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+}
+
+.familyLabel {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.familySelect {
+  padding: 6px 12px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-accent);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.familySelect:hover,
+.familySelect:focus {
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.memberTag {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--color-accent-primary);
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+/* ===== Dropzone ===== */
+.dropzone {
+  border: 2px dashed var(--color-border-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2xl) var(--space-lg);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  background: var(--color-bg-card);
+}
+
+.dropzone:hover {
+  border-color: var(--color-border-accent);
+  background: var(--color-bg-hover);
+}
+
+.dropzoneActive {
+  border-color: var(--color-accent-primary);
+  background: rgba(59, 130, 246, 0.08);
+  box-shadow: var(--shadow-glow);
+}
+
+.fileInput {
+  display: none;
+}
+
+.dropzoneIcon {
+  font-size: 2.5rem;
+  margin-bottom: var(--space-md);
+  animation: float 3s ease-in-out infinite;
+}
+
+.dropzoneTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.dropzoneDesc {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+/* ===== Document List ===== */
+.docList {
+  margin-top: var(--space-lg);
+}
+
+.docListTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-md);
+}
+
+.docItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-sm);
+  border: 1px solid var(--color-border-primary);
+  animation: slideUp 0.3s ease-out;
+}
+
+.docInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex: 1;
+  min-width: 0;
+}
+
+.docIcon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.docName {
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.docMeta {
+  flex-shrink: 0;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.statusPending {
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--color-text-secondary);
+}
+
+.statusAnalyzing {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--color-accent-primary);
+}
+
+.statusCompleted {
+  background: var(--color-status-sure-bg);
+  color: var(--color-status-sure);
+}
+
+.statusPassword {
+  background: var(--color-status-conditional-bg);
+  color: var(--color-status-conditional);
+}
+
+.statusError {
+  background: var(--color-status-check-bg);
+  color: var(--color-status-check);
+}
+
+.docError {
+  width: 100%;
+  font-size: 0.8rem;
+  color: var(--color-status-check);
+  margin-top: var(--space-xs);
+  padding-left: calc(1.2rem + var(--space-sm));
+}
+
+/* ===== Spinner ===== */
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .dropzone {
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .dropzoneIcon {
+    font-size: 2rem;
+  }
+}
