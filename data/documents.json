@@ -1,0 +1,172 @@
+[
+  {
+    "id": "doc-my-01",
+    "familyMemberId": "user-001",
+    "insuranceId": "25ab9a56-d4bd-432a-a7b7-663487b83204",
+    "fileName": "KB_나_보험증권.pdf",
+    "storedFileName": "doc-my-01.pdf",
+    "mimeType": "application/pdf",
+    "fileSize": 1024,
+    "documentType": "보험증권",
+    "company": "KB손해보험",
+    "productName": "KB든든건강보험(나)",
+    "status": "completed",
+    "ocrUsed": false,
+    "extractedTextFile": "doc-my-01.txt",
+    "pageCount": 5,
+    "analysisResult": {
+      "documentType": "보험증권",
+      "company": "KB손해보험",
+      "productName": "KB든든건강보험(나)",
+      "contractDate": "2023-05-10",
+      "insurancePeriodStart": "2023-05-10",
+      "insurancePeriodEnd": "2083-05-10",
+      "monthlyPremium": "75,000원",
+      "mainContract": "일반상해사망",
+      "riders": [
+        {
+          "name": "응급실내원진료비특약(나 전용)",
+          "coverageAmount": "30,000원",
+          "benefitAmount": "30,000원",
+          "conditions": "응급증상으로 응급실 내원 시",
+          "exclusions": "비응급 단순 피로 제외",
+          "reductionConditions": "",
+          "renewable": "비갱신",
+          "coveragePeriod": "100세만기",
+          "sourceDocument": "KB_나_보험증권.pdf",
+          "sourcePage": "p.3"
+        },
+        {
+          "name": "일반암진단비특약(나 전용)",
+          "coverageAmount": "30,000,000원",
+          "benefitAmount": "3,000만원",
+          "conditions": "일반암 최초 진단 시",
+          "exclusions": "갑상선암 소액암 제외",
+          "reductionConditions": "1년 내 50% 감액",
+          "renewable": "비갱신",
+          "coveragePeriod": "100세만기",
+          "sourceDocument": "KB_나_보험증권.pdf",
+          "sourcePage": "p.5"
+        }
+      ],
+      "keyTerms": [
+        "응급실",
+        "암"
+      ],
+      "ocrConfidence": "high"
+    },
+    "errorMessage": null,
+    "uploadDate": "2026-09-29T07:41:53.332Z",
+    "analysisDate": "2026-09-29T07:41:53.333Z",
+    "isDeleted": false
+  },
+  {
+    "id": "doc-child-01",
+    "familyMemberId": "child-001",
+    "insuranceId": "3a95ca76-bbfb-430f-9cfb-bb1ac9b0116c",
+    "fileName": "현대_아들_어린이보험증권.pdf",
+    "storedFileName": "doc-child-01.pdf",
+    "mimeType": "application/pdf",
+    "fileSize": 1024,
+    "documentType": "보험증권",
+    "company": "현대해상",
+    "productName": "굿앤굿어린이보험(아들)",
+    "status": "completed",
+    "ocrUsed": false,
+    "extractedTextFile": "doc-child-01.txt",
+    "pageCount": 5,
+    "analysisResult": {
+      "documentType": "보험증권",
+      "company": "현대해상",
+      "productName": "굿앤굿어린이보험(아들)",
+      "contractDate": "2024-01-15",
+      "insurancePeriodStart": "2024-01-15",
+      "insurancePeriodEnd": "2054-01-15",
+      "monthlyPremium": "45,000원",
+      "mainContract": "어린이종합",
+      "riders": [
+        {
+          "name": "어린이응급실내원치료비특약(아들 전용)",
+          "coverageAmount": "50,000원",
+          "benefitAmount": "50,000원",
+          "conditions": "응급/비응급 불문 응급실 내원 치료 시",
+          "exclusions": "고의사고 제외",
+          "reductionConditions": "",
+          "renewable": "비갱신",
+          "coveragePeriod": "30세만기",
+          "sourceDocument": "현대_아들_어린이보험증권.pdf",
+          "sourcePage": "p.2"
+        },
+        {
+          "name": "소아암진단비특약(아들 전용)",
+          "coverageAmount": "50,000,000원",
+          "benefitAmount": "5,000만원",
+          "conditions": "소아 백혈병 및 암 최초 진단 시",
+          "exclusions": "면책기간 90일",
+          "reductionConditions": "",
+          "renewable": "비갱신",
+          "coveragePeriod": "30세만기",
+          "sourceDocument": "현대_아들_어린이보험증권.pdf",
+          "sourcePage": "p.4"
+        }
+      ],
+      "keyTerms": [
+        "응급실",
+        "소아암"
+      ],
+      "ocrConfidence": "high"
+    },
+    "errorMessage": null,
+    "uploadDate": "2026-09-29T07:41:53.333Z",
+    "analysisDate": "2026-09-29T07:41:53.333Z",
+    "isDeleted": false
+  },
+  {
+    "id": "doc-spouse-01",
+    "familyMemberId": "spouse-001",
+    "insuranceId": "c20ffead-9e58-4ba3-9fef-11a2df9b9ccb",
+    "fileName": "삼성_배우자_보험증권.pdf",
+    "storedFileName": "doc-spouse-01.pdf",
+    "mimeType": "application/pdf",
+    "fileSize": 1024,
+    "documentType": "보험증권",
+    "company": "삼성생명",
+    "productName": "여성시대건강보험(배우자)",
+    "status": "completed",
+    "ocrUsed": false,
+    "extractedTextFile": "doc-spouse-01.txt",
+    "pageCount": 5,
+    "analysisResult": {
+      "documentType": "보험증권",
+      "company": "삼성생명",
+      "productName": "여성시대건강보험(배우자)",
+      "contractDate": "2022-09-01",
+      "insurancePeriodStart": "2022-09-01",
+      "insurancePeriodEnd": "2062-09-01",
+      "monthlyPremium": "60,000원",
+      "mainContract": "여성건강",
+      "riders": [
+        {
+          "name": "질병입원비특약(배우자 전용)",
+          "coverageAmount": "40,000원",
+          "benefitAmount": "1일당 4만원",
+          "conditions": "질병으로 입원 1일 이상 시",
+          "exclusions": "미용목적 제외",
+          "reductionConditions": "",
+          "renewable": "갱신형",
+          "coveragePeriod": "80세만기",
+          "sourceDocument": "삼성_배우자_보험증권.pdf",
+          "sourcePage": "p.6"
+        }
+      ],
+      "keyTerms": [
+        "입원비"
+      ],
+      "ocrConfidence": "high"
+    },
+    "errorMessage": null,
+    "uploadDate": "2026-09-29T07:41:53.333Z",
+    "analysisDate": "2026-09-29T07:41:53.333Z",
+    "isDeleted": false
+  }
+]

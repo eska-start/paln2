@@ -40,6 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# insurance documents - NEVER commit personal documents
+# insurance documents - NEVER commit personal uploaded files
 /uploads/
-/data/
+/data/extracted/
+!/data/family.json
+!/data/insurance.json
+!/data/documents.json

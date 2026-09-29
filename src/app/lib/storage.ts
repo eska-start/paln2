@@ -7,39 +7,78 @@ import path from "path";
 import type { DocumentRecord, InsurancePolicy, FamilyMember, KakaoSession } from "./types";
 import { DEFAULT_FAMILY_MEMBERS } from "./types";
 
-const DATA_DIR = path.join(process.cwd(), "data");
+const IS_VERCEL = !!process.env.VERCEL;
+const PROJECT_DATA_DIR = path.join(process.cwd(), "data");
+
+const DATA_DIR = IS_VERCEL ? path.join("/tmp", "data") : PROJECT_DATA_DIR;
 const EXTRACTED_DIR = path.join(DATA_DIR, "extracted");
-const UPLOADS_DIR = path.join(process.cwd(), "uploads");
+const UPLOADS_DIR = IS_VERCEL ? path.join("/tmp", "uploads") : path.join(process.cwd(), "uploads");
 
 const DOCUMENTS_FILE = path.join(DATA_DIR, "documents.json");
 const INSURANCE_FILE = path.join(DATA_DIR, "insurance.json");
 const FAMILY_FILE = path.join(DATA_DIR, "family.json");
 const KAKAO_SESSIONS_FILE = path.join(DATA_DIR, "kakao_sessions.json");
 
-/** 필요한 디렉토리를 생성 */
+/** 필요한 디렉토리를 생성 및 초기 템플릿 복사 */
 export function ensureDirectories(): void {
   [DATA_DIR, EXTRACTED_DIR, UPLOADS_DIR].forEach((dir) => {
     if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+      try {
+        fs.mkdirSync(dir, { recursive: true });
+      } catch (err) {
+        console.warn(`[storage] Failed to create dir ${dir}:`, err);
+      }
     }
   });
+
+  // Vercel 환경인 경우, 프로젝트 기본 data 디렉토리가 있다면 /tmp/data로 초기 복사
+  if (IS_VERCEL && fs.existsSync(PROJECT_DATA_DIR)) {
+    try {
+      const files = ["family.json", "insurance.json", "documents.json"];
+      for (const file of files) {
+        const src = path.join(PROJECT_DATA_DIR, file);
+        const dest = path.join(DATA_DIR, file);
+        if (fs.existsSync(src) && !fs.existsSync(dest)) {
+          fs.copyFileSync(src, dest);
+        }
+      }
+    } catch (err) {
+      console.warn("[storage] Seed data copy skipped:", err);
+    }
+  }
 }
 
 // ======== Generic JSON helpers ========
 
 function readJSON<T>(filePath: string, defaultValue: T): T {
   try {
-    if (!fs.existsSync(filePath)) return defaultValue;
+    ensureDirectories();
+    if (!fs.existsSync(filePath)) {
+      // Vercel 환경에서 아직 /tmp에 파일이 없으면 프로젝트 디렉토리에서 읽기 시도
+      if (IS_VERCEL) {
+        const fallbackPath = path.join(PROJECT_DATA_DIR, path.basename(filePath));
+        if (fs.existsSync(fallbackPath)) {
+          const content = fs.readFileSync(fallbackPath, "utf-8");
+          return JSON.parse(content) as T;
+        }
+      }
+      return defaultValue;
+    }
     const content = fs.readFileSync(filePath, "utf-8");
     return JSON.parse(content) as T;
-  } catch {
+  } catch (err) {
+    console.error(`[storage] Error reading ${filePath}:`, err);
     return defaultValue;
   }
 }
 
 function writeJSON<T>(filePath: string, data: T): void {
-  ensureDirectories();
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
+  try {
+    ensureDirectories();
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
+  } catch (err) {
+    console.error(`[storage] Error writing ${filePath}:`, err);
+  }
 }
 
 // ======== Family Member Operations ========

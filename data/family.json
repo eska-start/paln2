@@ -1,0 +1,23 @@
+[
+  {
+    "id": "user-001",
+    "name": "나",
+    "relationship": "본인",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "spouse-001",
+    "name": "배우자",
+    "relationship": "배우자",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "child-001",
+    "name": "아들",
+    "relationship": "자녀",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  }
+]
