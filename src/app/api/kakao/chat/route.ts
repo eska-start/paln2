@@ -95,6 +95,8 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. 개인정보 보호 & 화이트리스트 검증 (요구사항 8)
+    console.log(`[카카오 챗봇 요청] 사용자 식별키: ${kakaoUserId}, 발화: "${utterance}"`);
+
     const allowedUserIdsRaw = process.env.ALLOWED_KAKAO_USER_IDS;
     if (allowedUserIdsRaw && allowedUserIdsRaw.trim() !== "") {
       const allowedList = allowedUserIdsRaw
@@ -103,15 +105,19 @@ export async function POST(request: NextRequest) {
         .filter((id) => id.length > 0);
 
       if (!allowedList.includes(kakaoUserId)) {
-        // 화이트리스트에 없는 사용자 차단
+        // 화이트리스트에 없는 사용자 차단 (사용자가 본인 키를 복사할 수 있도록 식별키 함께 안내)
         return Response.json(
-          createKakaoResponse("접근 권한이 없습니다.")
+          createKakaoResponse(
+            `접근 권한이 없습니다.\n\n[등록 안내]\n본인의 카카오 식별키는 다음과 같습니다:\n${kakaoUserId}\n\n이 값을 환경변수(ALLOWED_KAKAO_USER_IDS)에 등록하시면 바로 이용하실 수 있습니다.`
+          )
         );
       }
     } else if (process.env.NODE_ENV === "production") {
       // 운영 상태에서 화이트리스트 미설정 시 안전 차단
       return Response.json(
-        createKakaoResponse("접근 권한이 설정되지 않았습니다.")
+        createKakaoResponse(
+          `접근 권한이 설정되지 않았습니다.\n\n[등록 안내]\n본인의 카카오 식별키는 다음과 같습니다:\n${kakaoUserId}\n\n이 값을 환경변수(ALLOWED_KAKAO_USER_IDS)에 등록해 주세요.`
+        )
       );
     }
 
