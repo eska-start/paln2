@@ -144,23 +144,59 @@ export async function executeInsuranceChat(
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
-    systemInstruction,
-  });
+  const candidateModels = [
+    process.env.GEMINI_MODEL,
+    "gemini-3.8-flash",
+    "gemini-flash-latest",
+    "gemini-2.5-flash",
+    "gemini-1.5-flash",
+  ].filter(Boolean) as string[];
 
-  const chatHistory = history.map((msg) => ({
-    role: msg.role === "user" ? "user" : "model",
-    parts: [{ text: msg.content }],
-  }));
+  let text = "";
+  let lastError: Error | null = null;
 
-  const chat = model.startChat({
-    history: chatHistory,
-  });
+  for (const modelName of candidateModels) {
+    try {
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        systemInstruction,
+      });
 
-  const result = await chat.sendMessage(message);
-  const response = result.response;
-  let text = response.text();
+      const chatHistory = history.map((msg) => ({
+        role: msg.role === "user" ? "user" : "model",
+        parts: [{ text: msg.content }],
+      }));
+
+      const chat = model.startChat({
+        history: chatHistory,
+      });
+
+      const result = await chat.sendMessage(message);
+      const response = result.response;
+      text = response.text();
+      if (text) break;
+    } catch (err) {
+      lastError = err as Error;
+      console.warn(`[Gemini] Model ${modelName} call failed, trying next fallback:`, (err as Error).message);
+    }
+  }
+
+  if (!text) {
+    console.error("[Gemini] All model attempts failed:", lastError?.message);
+    // AI 호출 실패 시에도 서비스가 중단되지 않고 검색 결과를 정중히 제공
+    text = `[${targetMember.name} 보험 분석]\n${targetMember.name}님의 가입 보험을 기준으로 확인했습니다.\n\n`;
+    if (searchResults.length > 0) {
+      text += `확인된 관련 보험/특약 ${searchResults.length}건이 있습니다.\n\n`;
+      for (const res of searchResults.slice(0, 3)) {
+        if (res.insurance) {
+          text += `• ${res.insurance.company} - ${res.insurance.productName}\n`;
+        }
+      }
+      text += `\n※ 상세 분석을 생성하는 중 일시적인 지연이 발생했습니다. 잠시 후 다시 질문해 주세요.`;
+    } else {
+      text += `현재 ${targetMember.name}님에게 등록된 관련 보험 문서를 찾을 수 없습니다. 웹 화면에서 보험증권 문서를 업로드해 주세요.`;
+    }
+  }
 
   // 카카오톡 길이 제한 안전 처리 (약 950자 이내)
   if (isKakao && text.length > 950) {

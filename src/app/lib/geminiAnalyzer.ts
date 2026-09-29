@@ -77,14 +77,23 @@ function cleanJSONResponse(text: string): string {
 /**
  * 텍스트 기반 문서 분석 (일반 PDF에서 텍스트 추출 성공 시)
  */
+const CANDIDATE_MODELS = [
+  process.env.GEMINI_MODEL,
+  "gemini-3.8-flash",
+  "gemini-flash-latest",
+  "gemini-2.5-flash",
+  "gemini-1.5-flash",
+].filter(Boolean) as string[];
+
+/**
+ * 텍스트 기반 문서 분석 (일반 PDF에서 텍스트 추출 성공 시)
+ */
 export async function analyzeText(
   text: string,
   fileName: string
 ): Promise<DocumentAnalysis | null> {
   const genAI = getGenAI();
   if (!genAI) return null;
-
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   // 개인정보 제거 후 AI에 전달
   const sanitizedText = sanitizeForAI(text);
@@ -97,29 +106,29 @@ export async function analyzeText(
 
   const prompt = `${ANALYSIS_PROMPT}\n\n파일명: ${fileName}\n\n문서 내용:\n${truncatedText}`;
 
-  try {
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
-    const cleaned = cleanJSONResponse(responseText);
-    const analysis = JSON.parse(cleaned) as DocumentAnalysis;
+  for (const modelName of CANDIDATE_MODELS) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text();
+      const cleaned = cleanJSONResponse(responseText);
+      const analysis = JSON.parse(cleaned) as DocumentAnalysis;
 
-    // 소스 문서 정보 기본값 설정
-    if (analysis.riders) {
-      for (const rider of analysis.riders) {
-        if (!rider.sourceDocument) {
-          rider.sourceDocument = fileName;
+      if (analysis.riders) {
+        for (const rider of analysis.riders) {
+          if (!rider.sourceDocument) {
+            rider.sourceDocument = fileName;
+          }
         }
       }
-    }
 
-    return analysis;
-  } catch (err) {
-    console.error(
-      "Document analysis error:",
-      err instanceof Error ? err.message : "unknown"
-    );
-    return null;
+      return analysis;
+    } catch (err) {
+      console.warn(`[geminiAnalyzer] analyzeText with ${modelName} failed, trying next:`, (err as Error).message);
+    }
   }
+
+  return null;
 }
 
 /**
@@ -132,8 +141,6 @@ export async function analyzeFile(
 ): Promise<{ analysis: DocumentAnalysis | null; extractedText: string }> {
   const genAI = getGenAI();
   if (!genAI) return { analysis: null, extractedText: "" };
-
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   const base64Data = buffer.toString("base64");
 
@@ -155,72 +162,73 @@ export async function analyzeFile(
 --- ANALYSIS_JSON ---
 ${ANALYSIS_PROMPT}`;
 
-  try {
-    const result = await model.generateContent([
-      { text: ocrPrompt },
-      {
-        inlineData: {
-          mimeType,
-          data: base64Data,
+  for (const modelName of CANDIDATE_MODELS) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent([
+        { text: ocrPrompt },
+        {
+          inlineData: {
+            mimeType,
+            data: base64Data,
+          },
         },
-      },
-    ]);
+      ]);
 
-    const responseText = result.response.text();
+      const responseText = result.response.text();
 
-    // 텍스트와 JSON 분리
-    let extractedText = "";
-    let jsonStr = "";
+      // 텍스트와 JSON 분리
+      let extractedText = "";
+      let jsonStr = "";
 
-    if (responseText.includes("--- ANALYSIS_JSON ---")) {
-      const parts = responseText.split("--- ANALYSIS_JSON ---");
-      extractedText = parts[0]
-        .replace("--- EXTRACTED_TEXT ---", "")
-        .trim();
-      jsonStr = parts[1].trim();
-    } else if (responseText.includes("--- EXTRACTED_TEXT ---")) {
-      extractedText = responseText
-        .replace("--- EXTRACTED_TEXT ---", "")
-        .trim();
-      jsonStr = "";
-    } else {
-      // JSON만 반환된 경우
-      jsonStr = responseText;
-    }
+      if (responseText.includes("--- ANALYSIS_JSON ---")) {
+        const parts = responseText.split("--- ANALYSIS_JSON ---");
+        extractedText = parts[0]
+          .replace("--- EXTRACTED_TEXT ---", "")
+          .trim();
+        jsonStr = parts[1].trim();
+      } else if (responseText.includes("--- EXTRACTED_TEXT ---")) {
+        extractedText = responseText
+          .replace("--- EXTRACTED_TEXT ---", "")
+          .trim();
+        jsonStr = "";
+      } else {
+        // JSON만 반환된 경우
+        jsonStr = responseText;
+      }
 
-    let analysis: DocumentAnalysis | null = null;
-    if (jsonStr) {
-      try {
-        const cleaned = cleanJSONResponse(jsonStr);
-        analysis = JSON.parse(cleaned) as DocumentAnalysis;
-        if (analysis && analysis.riders) {
-          for (const rider of analysis.riders) {
-            if (!rider.sourceDocument) {
-              rider.sourceDocument = fileName;
+      let analysis: DocumentAnalysis | null = null;
+      if (jsonStr) {
+        try {
+          const cleaned = cleanJSONResponse(jsonStr);
+          analysis = JSON.parse(cleaned) as DocumentAnalysis;
+          if (analysis && analysis.riders) {
+            for (const rider of analysis.riders) {
+              if (!rider.sourceDocument) {
+                rider.sourceDocument = fileName;
+              }
             }
           }
-        }
-        // OCR 사용 표시
-        if (analysis && !analysis.ocrConfidence) {
-          analysis.ocrConfidence = "medium";
-        }
-      } catch {
-        // JSON 파싱 실패 시 텍스트 분석으로 폴백
-        if (extractedText) {
-          analysis = await analyzeText(extractedText, fileName);
+          // OCR 사용 표시
+          if (analysis && !analysis.ocrConfidence) {
+            analysis.ocrConfidence = "medium";
+          }
+        } catch {
+          // JSON 파싱 실패 시 텍스트 분석으로 폴백
+          if (extractedText) {
+            analysis = await analyzeText(extractedText, fileName);
+          }
         }
       }
+
+      // 추출 텍스트에서 개인정보 제거
+      extractedText = sanitizeForAI(extractedText);
+
+      return { analysis, extractedText };
+    } catch (err) {
+      console.warn(`[geminiAnalyzer] analyzeFile with ${modelName} failed, trying next:`, (err as Error).message);
     }
-
-    // 추출 텍스트에서 개인정보 제거
-    extractedText = sanitizeForAI(extractedText);
-
-    return { analysis, extractedText };
-  } catch (err) {
-    console.error(
-      "File analysis error:",
-      err instanceof Error ? err.message : "unknown"
-    );
-    return { analysis: null, extractedText: "" };
   }
+
+  return { analysis: null, extractedText: "" };
 }
